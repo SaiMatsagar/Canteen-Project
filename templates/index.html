@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Annapurna</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .hero {
+            background-color: var(--primary);
+            color: #FFFFFF;
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .hero h1 { font-size: 36px; margin-bottom: 10px; }
+        .hero p { font-size: 15px; margin-bottom: 24px; }
+        .hero-buttons {
+            display: flex; gap: 12px; justify-content: center;
+        }
+        .hero .btn-outline {
+            color: #FFFFFF;
+            border: 2px solid #FFFFFF;
+        }
+        .hero .btn-outline:hover {
+            background-color: #FFFFFF;
+            color: var(--primary);
+        }
+
+        .plan-box {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        .plan-item {
+            
+
+            flex: 1;
+            background-color: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            text-align: center;
+        }
+        .plan-item h3 { font-size: 20px; margin-bottom: 8px; color: var(--text); }
+        .plan-item .amount { font-size: 22px; font-weight: bold; color: var(--primary); margin-bottom: 12px; }
+        .plan-item ul { list-style: none; text-align: left; font-size: 13px; color: #555; margin-bottom: 16px; }
+        .plan-item ul li { padding: 4px 0; border-bottom: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <a href="/" class="brand">Annapurna</a>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/#menu">Menu</a>
+        <a href="/membership">Membership</a>
+        <a href="/walkin">Walk-in</a>
+        <a href="/#contact">Contact</a>
+        {% if session.get('student_id') %}
+        <a href="/dashboard">Dashboard</a>
+        <a href="/profile">Profile</a>
+        <a href="/orders">My Orders</a>
+        <a href="/logout">Logout</a>
+        {% elif session.get('admin') %}
+        <a href="/admin/dashboard">Admin Dashboard</a>
+        <a href="/admin/bulk_menu">Bulk Order</a>
+        <a href="/admin/orders">All Orders</a>
+        <a href="/logout">Logout</a>
+        {% else %}
+        <a href="/login">Student Login</a>
+        <a href="/register">Register</a>
+        <a href="/admin">Admin</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- HERO SECTION -->
+<div class="hero">
+    <h1>Annapurna 🍽️</h1>
+    <p>"प्रेमाने वाढलेला प्रत्येक घास, समाधानाचा प्रत्येक श्वास."</p>
+    <div class="hero-buttons">
+        <a href="/register" class="btn btn-outline">Join as Member</a>
+        <a href="/walkin" class="btn btn-outline">Order as Walk-in</a>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- TODAY'S MENU -->
+    <p class="section-title" id="menu">Today's Menu</p>
+    <p class="section-sub">Fresh meals prepared daily.</p>
+
+    <p class="meal-heading">Breakfast</p>
+    <div class="card-grid">
+        {% for item in breakfast %}
+        <div class="card">
+            <h3>{{ item.item_name }}</h3>
+            <p class="price">Rs. {{ item.price }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <p class="meal-heading">Lunch</p>
+    <div class="card-grid">
+        {% for item in lunch %}
+        <div class="card">
+            <h3>{{ item.item_name }}</h3>
+            <p class="price">Rs. {{ item.price }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <p class="meal-heading">Dinner</p>
+    <div class="card-grid">
+        {% for item in dinner %}
+        <div class="card">
+            <h3>{{ item.item_name }}</h3>
+            <p class="price">Rs. {{ item.price }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <hr class="divider">
+
+    <!-- MEMBERSHIP PLANS -->
+    <p class="section-title" style="text-align:center;">Membership Plans</p>
+    <p class="section-sub" style="text-align:center;">Save more with a monthly plan. Valid for 30 days.</p>
+
+    <div class="plan-box">
+        <div class="plan-item">
+            <h3>Silver Plan</h3>
+            <p class="amount">Rs. 2400 / month</p>
+            <ul>
+                <li>Lunch and Dinner included</li>
+                <li>2 rotis per meal</li>
+                <li>Standard dal and sabzi</li>
+                <li>Standard counter queue</li>
+                <li>30 days validity</li>
+            </ul>
+            <a href="/membership" class="btn btn-silver">Get Silver</a>
+        </div>
+        <div class="plan-item">
+            <h3>Gold Plan</h3>
+            <p class="amount">Rs. 3200 / month</p>
+            <ul>
+                <li>Breakfast, Lunch and Dinner</li>
+                <li>3 rotis per meal</li>
+                <li>Special item daily</li>
+                <li>Sweets and dessert daily</li>
+                <li>Priority counter queue</li>
+                <li>1 parcel per day</li>
+                <li>30 days validity</li>
+            </ul>
+            <a href="/membership" class="btn btn-gold">Get Gold</a>
+        </div>
+    </div>
+
+</div>
+
+<div class="footer" id="contact">
+    <p class="footer-brand">Annapurna</p>
+    <p>Government Polytechnic Ahmednagar</p>
+    <p>Contact: annapurna.canteen@gpahmednagar.ac.in &nbsp;|&nbsp; +91 98765 43210</p>
+    <p>Copyright 2026 Annapurna. All rights reserved.</p>
+</div>
+
+</body>
+</html>

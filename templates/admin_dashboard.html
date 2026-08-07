@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard - Annapurna</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .admin-header {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .admin-header .page-title { margin-bottom: 2px; }
+        .admin-header .page-sub { margin-bottom: 0; }
+        .admin-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .admin-actions .link {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .admin-actions .link:hover { background: var(--border); text-decoration: none; }
+
+        .section-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .section-box .section-title { margin-bottom: 2px; font-size: 17px; }
+        .section-box .section-sub { margin-bottom: 14px; }
+        .section-box .table-wrap { margin-bottom: 0; }
+        .section-box .data-table { border: none; }
+        .section-box .summary-line { margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <a href="/" class="brand">Annapurna</a>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/#menu">Menu</a>
+        <a href="/membership">Membership</a>
+        <a href="/walkin">Walk-in</a>
+        <a href="/#contact">Contact</a>
+        {% if session.get('student_id') %}
+        <a href="/dashboard">Dashboard</a>
+        <a href="/profile">Profile</a>
+        <a href="/orders">My Orders</a>
+        <a href="/logout">Logout</a>
+        {% elif session.get('admin') %}
+        <a href="/admin/dashboard">Admin Dashboard</a>
+        <a href="/admin/bulk_menu">Bulk Order</a>
+        <a href="/admin/orders">All Orders</a>
+        <a href="/logout">Logout</a>
+        {% else %}
+        <a href="/login">Student Login</a>
+        <a href="/register">Register</a>
+        <a href="/admin">Admin</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container">
+
+    {% if msg %}
+    <p class="flash">{{ msg }}</p>
+    {% endif %}
+
+    <div class="admin-header">
+        <div>
+            <p class="page-title">Admin Dashboard</p>
+            <p class="page-sub">Date: {{ today }}</p>
+        </div>
+        <div class="admin-actions">
+            <a href="/admin/add_menu" class="link">+ Add Menu Item</a>
+            <a href="/admin/bulk_menu" class="link">+ Bulk Add Items</a>
+            <a href="/admin/orders" class="link">All Orders</a>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <p class="section-title">Today's Menu</p>
+        <p class="section-sub">Mark an item unavailable if it runs out — it's hidden from students immediately, and you can bring it back any time.</p>
+        <div class="table-wrap"><table class="data-table">
+            <thead>
+                <tr>
+                    <th>Meal Type</th>
+                    <th>Item Name</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in todays_menu %}
+                <tr>
+                    <td>{{ item.meal_type }}</td>
+                    <td>{{ item.item_name }}</td>
+                    <td>Rs. {{ item.price }}</td>
+                    <td>{{ 'Available' if item.available else 'Unavailable' }}</td>
+                    <td>
+                        <form method="POST" action="/admin/menu/toggle/{{ item.id }}" style="display:inline;">
+                            {% if item.available %}
+                            <button type="submit" class="btn btn-red btn-small">Mark Unavailable</button>
+                            {% else %}
+                            <button type="submit" class="btn btn-green btn-small">Mark Available</button>
+                            {% endif %}
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="section-box">
+        <p class="section-title">Today's Headcount</p>
+        <p class="section-sub">Number of students who confirmed each meal.</p>
+        <div class="table-wrap"><table class="data-table">
+            <thead>
+                <tr>
+                    <th>Meal Type</th>
+                    <th>Item Name</th>
+                    <th>Total Orders</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in headcount %}
+                <tr>
+                    <td>{{ row.meal_type }}</td>
+                    <td>{{ row.item_name }}</td>
+                    <td><strong>{{ row.total }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="section-box">
+        <p class="section-title">Active Members</p>
+        <p class="section-sub">Students with an approved, active membership.</p>
+        <p class="summary-line">Silver: <strong>{{ silver_count }}</strong> &nbsp;|&nbsp; Gold: <strong>{{ gold_count }}</strong> &nbsp;|&nbsp; Total: <strong>{{ total_active }}</strong></p>
+        <div class="table-wrap"><table class="data-table">
+            <thead>
+                <tr>
+                    <th>Student No.</th>
+                    <th>Name</th>
+                    <th>Plan</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in active_members %}
+                <tr>
+                    <td>{{ m.id }}</td>
+                    <td>{{ m.name }}</td>
+                    <td>{{ m.membership_type }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="section-box">
+        <p class="section-title">Pending Membership Requests</p>
+        <p class="section-sub">Verify transaction ID and activate or reject.</p>
+        <div class="table-wrap"><table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Plan</th>
+                    <th>Transaction ID</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in pending %}
+                <tr>
+                    <td>{{ s.name }}</td>
+                    <td>{{ s.email }}</td>
+                    <td>{{ s.membership_type }}</td>
+                    <td>{{ s.transaction_id }}</td>
+                    <td>
+                        <form method="POST" action="/admin/activate/{{ s.id }}" style="display:inline;">
+                            <button type="submit" class="btn btn-green btn-small">Activate</button>
+                        </form>
+                        &nbsp;
+                        <form method="POST" action="/admin/reject/{{ s.id }}" style="display:inline;">
+                            <button type="submit" class="btn btn-red btn-small">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="section-box">
+        <p class="section-title">Today's Walk-in Orders</p>
+        <p class="section-sub">Pending walk-in orders received today. Mark delivered to clear from this list.</p>
+        <div class="table-wrap"><table class="data-table">
+            <thead>
+                <tr>
+                    <th>Order No.</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Transaction ID</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in walkin_orders %}
+                <tr>
+                    <td>No. {{ order.id }}</td>
+                    <td>{{ order.customer_name }}</td>
+                    <td>{{ order.phone }}</td>
+                    <td>{{ order.item_names }}</td>
+                    <td>Rs. {{ order.total_amount }}</td>
+                    <td>{{ order.transaction_id }}</td>
+                    <td>
+                        <form method="POST" action="/admin/walkin/deliver/{{ order.id }}" style="display:inline;">
+                            <button type="submit" class="btn btn-green btn-small">Delivered</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table></div>
+    </div>
+
+</div>
+
+<div class="footer" id="contact">
+    <p class="footer-brand">Annapurna</p>
+    <p>Government Polytechnic Ahmednagar</p>
+    <p>Contact: annapurna.canteen@gpahmednagar.ac.in &nbsp;|&nbsp; +91 98765 43210</p>
+    <p>Copyright 2026 Annapurna. All rights reserved.</p>
+</div>
+</body>
+</html>

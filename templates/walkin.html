@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Walk-in Order - Annapurna</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .item-row { display: flex; align-items: center; gap: 12px; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; transition: transform 0.2s; cursor: pointer; }
+        .item-row:hover { transform: scale(1.01); box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
+        .item-row input[type="checkbox"] { width: 16px; height: 16px; }
+        .item-name { flex: 1; font-size: 14px; font-weight: bold; color: #222; }
+        .item-type { font-size: 12px; color: #888; display: block; font-weight: normal; }
+        .item-price { font-size: 15px; font-weight: bold; color: var(--primary); }
+        .pay-section { background: white; border-radius: 10px; padding: 20px; border: 1px solid var(--border); margin-top: 24px; }
+        .pay-section h3 { font-size: 16px; margin-bottom: 10px; color: var(--text); }
+        .upi-info { background: #FDEAD9; border-radius: 8px; padding: 14px; margin-bottom: 16px; font-size: 14px; color: var(--text); }
+        .upi-info strong { font-size: 16px; display: block; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <a href="/" class="brand">Annapurna</a>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/#menu">Menu</a>
+        <a href="/membership">Membership</a>
+        <a href="/walkin">Walk-in</a>
+        <a href="/#contact">Contact</a>
+        {% if session.get('student_id') %}
+        <a href="/dashboard">Dashboard</a>
+        <a href="/profile">Profile</a>
+        <a href="/orders">My Orders</a>
+        <a href="/logout">Logout</a>
+        {% elif session.get('admin') %}
+        <a href="/admin/dashboard">Admin Dashboard</a>
+        <a href="/admin/bulk_menu">Bulk Order</a>
+        <a href="/admin/orders">All Orders</a>
+        <a href="/logout">Logout</a>
+        {% else %}
+        <a href="/login">Student Login</a>
+        <a href="/register">Register</a>
+        <a href="/admin">Admin</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container">
+
+    {% if msg %}
+    <p class="flash">{{ msg }}</p>
+    {% endif %}
+
+    <p class="page-title">Walk-in Order</p>
+    <p class="page-sub">Select items, pay via UPI, and enter your transaction ID.</p>
+
+    <form method="POST">
+
+        <div class="pay-section" style="margin-top:0; margin-bottom:24px;">
+            <h3>Your Details</h3>
+            <div class="form-group">
+                <label>Your Name</label>
+                <input type="text" name="customer_name" value="{{ student_name }}" placeholder="Enter your name" required>
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" name="phone" value="{{ student_phone }}" placeholder="e.g. 9876543210" pattern="[0-9]{10}" maxlength="10" required>
+            </div>
+        </div>
+
+        <p class="meal-heading">Breakfast</p>
+        {% for item in breakfast %}
+        <label class="item-row">
+            <input type="checkbox" name="item_ids" value="{{ item.id }}">
+            <span class="item-name">
+                {{ item.item_name }}
+            </span>
+            <span class="item-price">Rs. {{ item.price }}</span>
+        </label>
+        {% endfor %}
+
+        <p class="meal-heading">Lunch</p>
+        {% for item in lunch %}
+        <label class="item-row">
+            <input type="checkbox" name="item_ids" value="{{ item.id }}">
+            <span class="item-name">
+                {{ item.item_name }}
+            </span>
+            <span class="item-price">Rs. {{ item.price }}</span>
+        </label>
+        {% endfor %}
+
+        <p class="meal-heading">Dinner</p>
+        {% for item in dinner %}
+        <label class="item-row">
+            <input type="checkbox" name="item_ids" value="{{ item.id }}">
+            <span class="item-name">
+                {{ item.item_name }}
+            </span>
+            <span class="item-price">Rs. {{ item.price }}</span>
+        </label>
+        {% endfor %}
+
+        <div class="pay-section">
+            <h3>Payment</h3>
+            <div class="upi-info">
+                Pay to UPI ID:
+                <strong>{{ upi_id }}</strong>
+                Add up the prices of selected items and pay that amount.
+            </div>
+            <div class="form-group">
+                <label>Transaction ID (UTR Number)</label>
+                <input type="text" name="transaction_id" placeholder="e.g. 123456789012" required>
+            </div>
+            <button type="submit" class="btn btn-green">Confirm Order</button>
+        </div>
+
+    </form>
+
+</div>
+
+<div class="footer" id="contact">
+    <p class="footer-brand">Annapurna</p>
+    <p>Government Polytechnic Ahmednagar</p>
+    <p>Contact: annapurna.canteen@gpahmednagar.ac.in &nbsp;|&nbsp; +91 98765 43210</p>
+    <p>Copyright 2026 Annapurna. All rights reserved.</p>
+</div>
+</body>
+</html>

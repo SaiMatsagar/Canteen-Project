@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Membership - Annapurna</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 700px; margin: 0 auto 40px; }
+        .plan-card { border-radius: 12px; padding: 28px; text-align: center; border: 2px solid transparent; transition: transform 0.2s; }
+        .plan-card:hover { transform: scale(1.03); }
+        .plan-card.silver { background-color: var(--silver-bg); border-color: var(--silver-border); }
+        .plan-card.gold { background-color: var(--gold-bg); border-color: var(--gold-border); }
+        .plan-card h2 { font-size: 22px; margin-bottom: 6px; }
+        .plan-card.silver h2 { color: var(--silver-text); }
+        .plan-card.gold h2 { color: var(--gold-text); }
+        .plan-price { font-size: 26px; font-weight: bold; margin-bottom: 16px; }
+        .plan-card.silver .plan-price { color: var(--silver-text); }
+        .plan-card.gold .plan-price { color: var(--gold-text); }
+        .plan-card ul { list-style: none; text-align: left; margin-bottom: 20px; font-size: 13px; color: var(--text-soft); }
+        .plan-card ul li { padding: 5px 0; border-bottom: 1px solid rgba(32,15,7,0.08); }
+        .plan-card ul li::before { content: "\2713  "; color: var(--primary); font-weight: bold; }
+        .pay-box { background: white; border-radius: 10px; padding: 24px; border: 1px solid var(--border); max-width: 500px; margin: 0 auto; }
+        .pay-box h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
+        .upi-info { background-color: #FDEAD9; border-radius: 8px; padding: 16px; margin-bottom: 16px; font-size: 14px; color: var(--text); }
+        .upi-info strong { font-size: 18px; display: block; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <a href="/" class="brand">Annapurna</a>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/#menu">Menu</a>
+        <a href="/membership">Membership</a>
+        <a href="/walkin">Walk-in</a>
+        <a href="/#contact">Contact</a>
+        {% if session.get('student_id') %}
+        <a href="/dashboard">Dashboard</a>
+        <a href="/profile">Profile</a>
+        <a href="/orders">My Orders</a>
+        <a href="/logout">Logout</a>
+        {% elif session.get('admin') %}
+        <a href="/admin/dashboard">Admin Dashboard</a>
+        <a href="/admin/bulk_menu">Bulk Order</a>
+        <a href="/admin/orders">All Orders</a>
+        <a href="/logout">Logout</a>
+        {% else %}
+        <a href="/login">Student Login</a>
+        <a href="/register">Register</a>
+        <a href="/admin">Admin</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container">
+
+    {% if msg %}
+    <p class="flash">{{ msg }}</p>
+    {% endif %}
+
+    <p class="page-title">Membership Plans</p>
+    <p class="page-sub">Choose a plan, pay via UPI, and submit your transaction ID.</p>
+
+    <div class="plan-grid">
+        <div class="plan-card silver">
+            <h2>Silver Plan</h2>
+            <p class="plan-price">Rs. 2400 / month</p>
+            <ul>
+                <li>Lunch and Dinner included</li>
+                <li>2 rotis per meal</li>
+                <li>Standard dal and sabzi</li>
+                <li>Standard counter queue</li>
+                <li>30 days validity</li>
+            </ul>
+        </div>
+        <div class="plan-card gold">
+            <h2>Gold Plan</h2>
+            <p class="plan-price">Rs. 3200 / month</p>
+            <ul>
+                <li>Breakfast, Lunch and Dinner</li>
+                <li>3 rotis per meal</li>
+                <li>Special item daily</li>
+                <li>Sweets and dessert daily</li>
+                <li>Priority counter queue</li>
+                <li>1 parcel per day</li>
+                <li>30 days validity</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="pay-box">
+        <h3>Pay and Submit</h3>
+        <p style="font-size:13px; color:#777; margin-bottom:14px;">Select a plan below, open your UPI app, pay the amount, then enter your transaction ID.</p>
+
+        <div class="upi-info">
+            Pay to UPI ID:
+            <strong>{{ upi_id }}</strong>
+            Silver = Rs. 2400 &nbsp;|&nbsp; Gold = Rs. 3200
+        </div>
+
+        <form method="POST">
+            <div class="form-group">
+                <label>Select Plan</label>
+                <select name="plan" required>
+                    <option value="">-- Choose a plan --</option>
+                    <option value="silver">Silver - Rs. 2400</option>
+                    <option value="gold">Gold - Rs. 3200</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Transaction ID (UTR Number)</label>
+                <input type="text" name="transaction_id" placeholder="e.g. 123456789012" required>
+            </div>
+            <button type="submit" class="btn btn-green">Submit Payment</button>
+        </form>
+    </div>
+
+</div>
+
+<div class="footer" id="contact">
+    <p class="footer-brand">Annapurna</p>
+    <p>Government Polytechnic Ahmednagar</p>
+    <p>Contact: annapurna.canteen@gpahmednagar.ac.in &nbsp;|&nbsp; +91 98765 43210</p>
+    <p>Copyright 2026 Annapurna. All rights reserved.</p>
+</div>
+</body>
+</html>

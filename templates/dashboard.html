@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - Annapurna</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .status-card { background: white; border-radius: 10px; padding: 20px; border: 1px solid var(--border); margin-bottom: 24px; }
+        .status-card .label { font-size: 13px; color: #777; margin-bottom: 6px; }
+        .status-card .plan { font-size: 16px; font-weight: bold; color: var(--text); }
+        .status-card .status { font-size: 13px; color: #888; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <a href="/" class="brand">Annapurna</a>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/#menu">Menu</a>
+        <a href="/membership">Membership</a>
+        <a href="/walkin">Walk-in</a>
+        <a href="/#contact">Contact</a>
+        {% if session.get('student_id') %}
+        <a href="/dashboard">Dashboard</a>
+        <a href="/profile">Profile</a>
+        <a href="/orders">My Orders</a>
+        <a href="/logout">Logout</a>
+        {% elif session.get('admin') %}
+        <a href="/admin/dashboard">Admin Dashboard</a>
+        <a href="/admin/bulk_menu">Bulk Order</a>
+        <a href="/admin/orders">All Orders</a>
+        <a href="/logout">Logout</a>
+        {% else %}
+        <a href="/login">Student Login</a>
+        <a href="/register">Register</a>
+        <a href="/admin">Admin</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container">
+
+    {% if msg %}
+    <p class="flash">{{ msg }}</p>
+    {% endif %}
+
+    <p class="page-title">Hello, {{ student.name }}</p>
+    <p class="page-sub">Here is your meal dashboard for today.</p>
+
+    <div class="status-card">
+        <p class="label">Your Membership</p>
+        <p class="plan">{{ student.membership_type }} - {{ student.membership_status }}</p>
+        <p class="status">Diet preference: {{ student.diet }}</p>
+        <br>
+        <a href="/membership" class="btn btn-green btn-small">View or Change Plan</a>
+    </div>
+
+    <p class="meal-heading">Breakfast</p>
+    <div class="card-grid">
+        {% for item in breakfast %}
+        <div class="card">
+            <h3>{{ item.item_name }}</h3>
+            <p style="font-size:12px; color:#aaa;">Included in your plan</p>
+            {% if item.id in ordered %}
+                <p class="ordered">Confirmed</p>
+            {% else %}
+            <form method="POST">
+                <input type="hidden" name="menu_id" value="{{ item.id }}">
+                <button type="submit" class="btn btn-green btn-small">I am eating this</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <p class="meal-heading">Lunch</p>
+    <div class="card-grid">
+        {% for item in lunch %}
+        <div class="card">
+            <h3>{{ item.item_name }}</h3>
+            <p style="font-size:12px; color:#aaa;">Included in your plan</p>
+            {% if item.id in ordered %}
+                <p class="ordered">Confirmed</p>
+            {% else %}
+            <form method="POST">
+                <input type="hidden" name="menu_id" value="{{ item.id }}">
+                <button type="submit" class="btn btn-green btn-small">I am eating this</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <p class="meal-heading">Dinner</p>
+    <div class="card-grid">
+        {% for item in dinner %}
+        <div class="card">
+            <h3>{{ item.item_name }}</h3>
+            <p style="font-size:12px; color:#aaa;">Included in your plan</p>
+            {% if item.id in ordered %}
+                <p class="ordered">Confirmed</p>
+            {% else %}
+            <form method="POST">
+                <input type="hidden" name="menu_id" value="{{ item.id }}">
+                <button type="submit" class="btn btn-green btn-small">I am eating this</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<div class="footer" id="contact">
+    <p class="footer-brand">Annapurna</p>
+    <p>Government Polytechnic Ahmednagar</p>
+    <p>Contact: annapurna.canteen@gpahmednagar.ac.in &nbsp;|&nbsp; +91 98765 43210</p>
+    <p>Copyright 2026 Annapurna. All rights reserved.</p>
+</div>
+</body>
+</html>

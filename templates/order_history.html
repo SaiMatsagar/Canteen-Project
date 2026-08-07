@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Orders - Annapurna</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <a href="/" class="brand">Annapurna</a>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/#menu">Menu</a>
+        <a href="/membership">Membership</a>
+        <a href="/walkin">Walk-in</a>
+        <a href="/#contact">Contact</a>
+        {% if session.get('student_id') %}
+        <a href="/dashboard">Dashboard</a>
+        <a href="/profile">Profile</a>
+        <a href="/orders">My Orders</a>
+        <a href="/logout">Logout</a>
+        {% elif session.get('admin') %}
+        <a href="/admin/dashboard">Admin Dashboard</a>
+        <a href="/admin/bulk_menu">Bulk Order</a>
+        <a href="/admin/orders">All Orders</a>
+        <a href="/logout">Logout</a>
+        {% else %}
+        <a href="/login">Student Login</a>
+        <a href="/register">Register</a>
+        <a href="/admin">Admin</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container">
+
+    <p class="page-title">My Orders</p>
+    <p class="page-sub">All your confirmed meal orders as a member. You can cancel today's order before it's served.</p>
+
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>No. {{ order.id }}</td>
+                    <td>{{ order.order_date }}</td>
+                    <td>{{ order.item_name }}</td>
+                    <td>1</td>
+                    <td>Rs. {{ order.price }}</td>
+                    <td>Confirmed</td>
+                    <td>
+                        {% if order.order_date|string == today %}
+                        <form method="POST" action="/orders/cancel/{{ order.id }}" style="display:inline;" onsubmit="return confirm('Cancel this order?');">
+                            <button type="submit" class="btn btn-red btn-small">Cancel</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if not orders %}
+    <div class="card">
+        <p>You have not confirmed any meal orders yet. Visit your <a href="/dashboard" class="link">Dashboard</a> to order today's meal.</p>
+    </div>
+    {% endif %}
+
+    <p class="page-title" style="margin-top:36px;">My Walk-in Orders</p>
+    <p class="page-sub">Orders placed at the canteen counter.</p>
+
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Transaction ID</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in walkin_orders %}
+                <tr>
+                    <td>No. {{ order.id }}</td>
+                    <td>{{ order.order_date }}</td>
+                    <td>{{ order.item_names }}</td>
+                    <td>Rs. {{ order.total_amount }}</td>
+                    <td>{{ order.transaction_id }}</td>
+                    <td>{{ 'Delivered' if order.delivered else 'Pending' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if not walkin_orders %}
+    <div class="card">
+        <p>You have not placed any walk-in orders yet. Visit the <a href="/walkin" class="link">Walk-in</a> page to order at the counter.</p>
+    </div>
+    {% endif %}
+
+</div>
+
+<div class="footer" id="contact">
+    <p class="footer-brand">Annapurna</p>
+    <p>Government Polytechnic Ahmednagar</p>
+    <p>Contact: annapurna.canteen@gpahmednagar.ac.in &nbsp;|&nbsp; +91 98765 43210</p>
+    <p>Copyright 2026 Annapurna. All rights reserved.</p>
+</div>
+</body>
+</html>

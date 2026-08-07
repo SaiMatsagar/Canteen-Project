@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order Confirmed - Annapurna</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .confirm-box { text-align: center; background: white; border-radius: 12px; padding: 48px 32px; max-width: 440px; margin: 60px auto; border: 1px solid var(--border); box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+        .confirm-box h2 { font-size: 22px; color: var(--text); margin-bottom: 8px; }
+        .confirm-box p { font-size: 14px; color: var(--text-soft); margin-bottom: 8px; }
+        .order-num { font-size: 36px; font-weight: bold; color: var(--primary); margin: 14px 0; }
+        .items-list { text-align: left; background: var(--bg); border-radius: 8px; padding: 14px; margin: 16px 0; font-size: 13px; border: 1px solid var(--border); }
+        .items-list p { color: var(--text-soft); margin-bottom: 4px; }
+        .total { font-size: 18px; font-weight: bold; color: var(--text); margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <a href="/" class="brand">Annapurna</a>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/#menu">Menu</a>
+        <a href="/membership">Membership</a>
+        <a href="/walkin">Walk-in</a>
+        <a href="/#contact">Contact</a>
+        {% if session.get('student_id') %}
+        <a href="/dashboard">Dashboard</a>
+        <a href="/profile">Profile</a>
+        <a href="/orders">My Orders</a>
+        <a href="/logout">Logout</a>
+        {% elif session.get('admin') %}
+        <a href="/admin/dashboard">Admin Dashboard</a>
+        <a href="/admin/bulk_menu">Bulk Order</a>
+        <a href="/admin/orders">All Orders</a>
+        <a href="/logout">Logout</a>
+        {% else %}
+        <a href="/login">Student Login</a>
+        <a href="/register">Register</a>
+        <a href="/admin">Admin</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="confirm-box">
+    <p style="font-size:48px;">OK</p>
+    <h2>Order Confirmed!</h2>
+    <p>Show this order number at the counter to collect your food.</p>
+    <p class="order-num">No. {{ order_id }}</p>
+
+    <div class="items-list">
+        <p style="font-weight:bold; margin-bottom:8px;">Items ordered:</p>
+        {% for item in items %}
+        <p>- {{ item }}</p>
+        {% endfor %}
+    </div>
+
+    <p class="total">Total Paid: Rs. {{ total_amount }}</p>
+
+    <br>
+    <a href="/walkin" class="btn btn-green">Order Again</a>
+    &nbsp;
+    <a href="/" class="btn btn-outline">Go Home</a>
+</div>
+
+<div class="footer" id="contact">
+    <p class="footer-brand">Annapurna</p>
+    <p>Government Polytechnic Ahmednagar</p>
+    <p>Contact: annapurna.canteen@gpahmednagar.ac.in &nbsp;|&nbsp; +91 98765 43210</p>
+    <p>Copyright 2026 Annapurna. All rights reserved.</p>
+</div>
+</body>
+</html>
