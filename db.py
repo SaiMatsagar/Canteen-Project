@@ -1,15 +1,16 @@
 import os
 import mysql.connector
 
-# Reads DB details from environment variables (set by Railway automatically
-# when you attach a MySQL database there). Falls back to local XAMPP/MySQL
-# settings so this still works on your own laptop with no extra setup.
+print("HOST:", os.getenv("MYSQLHOST"))
+print("PORT:", os.getenv("MYSQLPORT"))
+print("USER:", os.getenv("MYSQLUSER"))
+print("DB:", os.getenv("MYSQLDATABASE"))
 
 def get_connection():
     return mysql.connector.connect(
-        host=os.getenv('MYSQLHOST', 'localhost'),
-        user=os.getenv('MYSQLUSER', 'root'),
-        password=os.getenv('MYSQLPASSWORD', ''),
-        database=os.getenv('MYSQLDATABASE', 'mess_db'),
-        port=int(os.getenv('MYSQLPORT', 3306))
+        host=os.getenv("MYSQLHOST"),
+        user=os.getenv("MYSQLUSER"),
+        password=os.getenv("MYSQLPASSWORD"),
+        database=os.getenv("MYSQL_DATABASE"),   # <-- changed
+       port = int(os.getenv("MYSQLPORT", 3306))
     )
