@@ -1,5 +1,6 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, session, get_flashed_messages, flash
-import mysql.connector
+from db import get_connection
 from datetime import date, timedelta
 
 app = Flask(__name__)
@@ -13,7 +14,7 @@ UPI_ID = 'annapurna@upi'
 # HOME PAGE
 @app.route('/')
 def home():
-    con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+    con = get_connection()
     cursor = con.cursor()
     sql = "SELECT * FROM menu WHERE meal_date = %s AND meal_type = %s AND available = 1"
 
@@ -52,7 +53,7 @@ def register():
         PASSWORD = request.form.get('password')
         DIET = request.form.get('diet')
 
-        con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+        con = get_connection()
         cursor = con.cursor()
         sql = "INSERT INTO students (name, email, password, diet) VALUES (%s, %s, %s, %s)"
         values = (NAME, EMAIL, PASSWORD, DIET)
@@ -83,7 +84,7 @@ def login():
         EMAIL = request.form.get('email')
         PASSWORD = request.form.get('password')
 
-        con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+        con = get_connection()
         cursor = con.cursor()
         sql = "SELECT * FROM students WHERE email = %s AND password = %s"
         values = (EMAIL, PASSWORD)
@@ -122,7 +123,7 @@ def dashboard():
     msgs = get_flashed_messages()
     msg = msgs[0] if msgs else ''
 
-    con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+    con = get_connection()
     cursor = con.cursor()
 
     sql = "SELECT * FROM students WHERE id = %s"
@@ -203,7 +204,7 @@ def profile():
     msgs = get_flashed_messages()
     msg = msgs[0] if msgs else ''
 
-    con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+    con = get_connection()
     cursor = con.cursor()
 
     if request.method == 'POST':
@@ -242,7 +243,7 @@ def orders():
     if 'student_id' not in session:
         return redirect(url_for('login'))
 
-    con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+    con = get_connection()
     cursor = con.cursor()
     sql = "SELECT o.id, o.order_date, m.item_name, m.price FROM orders o JOIN menu m ON o.menu_id = m.id WHERE o.student_id = %s ORDER BY o.order_date DESC, o.id DESC"
     values = (session['student_id'],)
@@ -272,7 +273,7 @@ def cancel_order(order_id):
     if 'student_id' not in session:
         return redirect(url_for('login'))
 
-    con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+    con = get_connection()
     cursor = con.cursor()
     sql = "DELETE FROM orders WHERE id = %s AND student_id = %s AND order_date = %s"
     values = (order_id, session['student_id'], str(date.today()))
@@ -298,7 +299,7 @@ def membership():
         PLAN = request.form.get('plan')
         TXN_ID = request.form.get('transaction_id')
 
-        con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+        con = get_connection()
         cursor = con.cursor()
         sql = "UPDATE students SET membership_type = %s, membership_status = 'pending', transaction_id = %s WHERE id = %s"
         values = (PLAN, TXN_ID, session['student_id'])
@@ -324,7 +325,7 @@ def walkin():
     msgs = get_flashed_messages()
     msg = msgs[0] if msgs else ''
 
-    con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+    con = get_connection()
     cursor = con.cursor()
 
     sql = "SELECT name, phone FROM students WHERE id = %s"
@@ -431,7 +432,7 @@ def admin_dashboard():
     msgs = get_flashed_messages()
     msg = msgs[0] if msgs else ''
 
-    con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+    con = get_connection()
     cursor = con.cursor()
 
     # auto-clean menu items older than 30 days that were never ordered, keeps the table tidy
@@ -504,7 +505,7 @@ def activate(student_id):
     if not session.get('admin'):
         return redirect(url_for('admin_login'))
 
-    con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+    con = get_connection()
     cursor = con.cursor()
     sql = "UPDATE students SET membership_status = 'active' WHERE id = %s"
     values = (student_id,)
@@ -523,7 +524,7 @@ def reject(student_id):
     if not session.get('admin'):
         return redirect(url_for('admin_login'))
 
-    con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+    con = get_connection()
     cursor = con.cursor()
     sql = "UPDATE students SET membership_status = 'rejected', membership_type = 'none' WHERE id = %s"
     values = (student_id,)
@@ -542,7 +543,7 @@ def deliver_walkin(order_id):
     if not session.get('admin'):
         return redirect(url_for('admin_login'))
 
-    con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+    con = get_connection()
     cursor = con.cursor()
     sql = "UPDATE walkin_orders SET delivered = 1 WHERE id = %s"
     values = (order_id,)
@@ -561,7 +562,7 @@ def toggle_menu_item(menu_id):
     if not session.get('admin'):
         return redirect(url_for('admin_login'))
 
-    con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+    con = get_connection()
     cursor = con.cursor()
     sql = "UPDATE menu SET available = 1 - available WHERE id = %s"
     values = (menu_id,)
@@ -580,7 +581,7 @@ def admin_orders():
     if not session.get('admin'):
         return redirect(url_for('admin_login'))
 
-    con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+    con = get_connection()
     cursor = con.cursor()
     sql = "SELECT o.id, s.name, m.item_name, m.meal_type, o.order_date FROM orders o JOIN students s ON o.student_id = s.id JOIN menu m ON o.menu_id = m.id ORDER BY o.order_date DESC, o.id DESC"
     cursor.execute(sql)
@@ -609,7 +610,7 @@ def add_menu():
         ITEM_NAME = request.form.get('item_name')
         PRICE = request.form.get('price')
 
-        con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+        con = get_connection()
         cursor = con.cursor()
         sql = "INSERT INTO menu (meal_date, meal_type, item_name, price) VALUES (%s, %s, %s, %s)"
         values = (MEAL_DATE, MEAL_TYPE, ITEM_NAME, PRICE)
@@ -639,7 +640,7 @@ def bulk_menu():
         meal_types = request.form.getlist('meal_type')
         prices = request.form.getlist('price')
 
-        con = mysql.connector.connect(host='localhost', user='root', password='', database='mess_db')
+        con = get_connection()
         cursor = con.cursor()
 
         count = 0
@@ -662,4 +663,5 @@ def bulk_menu():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.getenv('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
